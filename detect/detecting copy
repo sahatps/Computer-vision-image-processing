@@ -1,0 +1,75 @@
+# -*- coding: utf-8 -*-
+import torch
+import os
+import pathlib
+import numpy as np
+import cv2
+from super_gradients.training import models
+from super_gradients.training.utils.visualization.pose_estimation import PoseVisualization
+
+# Instantiate the model
+yolo_nas_pose = models.get("yolo_nas_pose_l", pretrained_weights="coco_pose")
+
+# Process single image for skeleton display
+def process_single_image(image, prediction):
+    pose_data = prediction.prediction
+    skeleton_image = PoseVisualization.draw_poses(
+        image=image.copy(),  # Draw on a copy of the original image
+        poses=pose_data.poses,
+        boxes=pose_data.bboxes_xyxy,
+        scores=pose_data.scores,
+        is_crowd=None,
+        edge_links=pose_data.edge_links,
+        edge_colors=pose_data.edge_colors,
+        keypoint_colors=pose_data.keypoint_colors,
+        joint_thickness=2,
+        box_thickness=2,
+        keypoint_radius=5
+    )
+    return skeleton_image
+
+# Main function to run the model on a local video file
+def main(input_video_path):
+    print("Starting video processing...")
+
+    # Open video file
+    cap = cv2.VideoCapture(input_video_path)
+    if not cap.isOpened():
+        print("Error: Could not open video.")
+        return
+
+    # Get video properties
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    out = cv2.VideoWriter('natt2.mp4', fourcc, fps, (width, height))
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            break
+
+        # Run prediction on the current frame with fuse_model=False
+        result = yolo_nas_pose.to('cpu').predict(frame, conf=0.4, fuse_model=False)
+
+        # Process the prediction
+        skeleton_frame = process_single_image(frame, result)
+
+        # Write the frame with skeleton overlay to output video
+        out.write(skeleton_frame)
+
+        # Display the frame in real-time
+        cv2.imshow('Skeleton Overlay', skeleton_frame)
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release resources
+    cap.release()
+    out.release()
+    cv2.destroyAllWindows()
+    print("Video processing completed. Output saved as 'skeleton_output.mp4'.")
+
+if __name__ == "__main__":
+    input_video_path = "D:/Project-Tennis/60fps1 IPad.MOV"
+    main(input_video_path)
