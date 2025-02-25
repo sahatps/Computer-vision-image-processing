@@ -10,6 +10,19 @@ Accurate 3D reconstruction of hand movements is crucial for analyzing reach-to-g
 
 ---
 
+## Key Differences: MATLAB `triangulate()` vs. `myTriangulate()`
+
+| **Feature**           | **MATLAB `triangulate()`**         | **Custom `myTriangulate()`**          |
+|-----------------------|------------------------------------|---------------------------------------|
+| **Method**            | Linear triangulation (SVD)         | Iterative refinement                  |
+| **Speed**             | Faster                             | Slower                                |
+| **Noise Handling**    | Sensitive to noise                 | More robust                           |
+| **Accuracy**          | Suitable for small errors          | Enhanced accuracy in real-world scenarios |
+| **Outlier Rejection** | Not supported                      | May include RANSAC                    |
+| **Flexibility**       | Limited to built-in implementation | Customizable for various applications |
+
+---
+
 ## Input, Output, Objective, and Limitations
 
 1. **Input:**
@@ -21,27 +34,15 @@ Accurate 3D reconstruction of hand movements is crucial for analyzing reach-to-g
    - Visualization of the reconstructed 3D path.
 
 3. **Objective:**
-   - To develop a robust system that accurately reconstructs 3D hand trajectories from stereo images.
-   - To enhance the precision of 3D motion capture through iterative refinement of triangulated data.
-   - To provide a tool for detailed analysis of reach-to-grasp movements in various applications.
+   - Develop a robust system that accurately reconstructs 3D hand trajectories from stereo images.
+   - Enhance the precision of 3D motion capture through iterative refinement of triangulated data.
+   - Provide a tool for detailed analysis of reach-to-grasp movements in various applications.
 
 4. **Limitations:**
    - Requires precise camera calibration; inaccuracies can lead to reconstruction errors.
    - Dependent on the quality and synchronization of stereo image capture.
    - Computational complexity increases with the number of iterations in the refinement process.
    - Performance may be affected by occlusions or poor lighting conditions during image capture.
-
----
-
-## Comparison of Triangulation Methods
-
-| **Step** | **MATLAB's `triangulate` Function** | **Custom `myTriangulate` Function** |
-|----------|------------------------------------|------------------------------------|
-| **1. Input Data Preparation** | - **Inputs:**<br>  Two sets of corresponding 2D points (`matchedPoints1`, `matchedPoints2`) and either stereo parameters (`stereoParams`) or individual camera projection matrices (`cameraMatrix1`, `cameraMatrix2`).<br>- **Preprocessing:**<br>  Undistort the image points if using stereo parameters. | - **Inputs:**<br>  Similar sets of corresponding 2D points and camera parameters.<br>- **Preprocessing:**<br>  May include additional steps such as outlier detection or normalization of points to improve numerical stability. |
-| **2. Initial Triangulation Estimate** | - **Method:**<br>  Performs linear triangulation using the Direct Linear Transformation (DLT) approach, solving a system of linear equations to find the 3D point that best fits the observed 2D correspondences. | - **Method:**<br>  May start with a similar linear triangulation to obtain an initial estimate. |
-| **3. Iterative Refinement** | - **Approach:**<br>  Typically does not include iterative refinement; it provides a direct solution based on the initial linear estimate. | - **Approach:**<br>  May implement iterative methods to refine the initial 3D point estimate.<br>- **Techniques:**<br>  Methods such as minimizing reprojection error using optimization techniques. |
-| **4. Outlier Handling** | - **Capability:**<br>  Does not inherently handle outliers; assumes that all input correspondences are valid. | - **Capability:**<br>  May include mechanisms to detect and exclude outliers, such as RANSAC (Random Sample Consensus), enhancing robustness to mismatched points. |
-| **5. Output** | - **Results:**<br>  Returns the 3D coordinates of points and optionally, reprojection errors and validity indices indicating points located in front of both cameras. | - **Results:**<br>  Likely returns refined 3D coordinates, possibly with additional information such as confidence metrics or detailed error statistics. |
 
 ---
 
@@ -79,5 +80,8 @@ Contributions to improve the system's accuracy, efficiency, and applicability ar
 This project is licensed under the terms of the MIT License. See the [LICENSE](LICENSE) file for details.
 
 ---
+
+*Note: This project builds upon established methods in stereo vision and 3D reconstruction. For foundational concepts and algorithms, refer to resources such as the [OpenCV documentation on camera calibration and 3D reconstruction](https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html) and relevant literature in computer vision.*
+
 
 *Note: This project builds upon established methods in stereo vision and 3D reconstruction. For foundational concepts and algorithms, refer to resources such as the [OpenCV documentation on camera calibration and 3D reconstruction](https://docs.opencv.org/3.4/d9/d0c/group__calib3d.html) and relevant literature in computer vision.*
