@@ -69,11 +69,7 @@ Accurate 3D reconstruction of hand movements is crucial for analyzing reach-to-g
 
 ---
 
-## Contributing
 
-Contributions to improve the system's accuracy, efficiency, and applicability are welcome. Please submit issues or pull requests to the project's repository for discussion and integration.
-
----
 
 ## License
 
